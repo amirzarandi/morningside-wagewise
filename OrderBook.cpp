@@ -289,7 +289,7 @@ public:
         if (!orders_.contains(orderId))
             return;
         
-        const auto& [order, iterator] = orders_.at(orderId);
+        const auto [order, iterator] = orders_.at(orderId);
         orders_.erase(orderId);
 
         if (order->GetSide() == Side::Sell)
