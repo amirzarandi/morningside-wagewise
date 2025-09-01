@@ -17,6 +17,7 @@ target_include_directories(common INTERFACE
 add_executable(morningside-wagerwise
     main.cpp
     src/orderbook/Orderbook.cpp
+    src/marketdata/MarketDataFeedHandler.cpp
 )
 
 target_include_directories(morningside-wagerwise PUBLIC
@@ -24,7 +25,17 @@ target_include_directories(morningside-wagerwise PUBLIC
     $<TARGET_PROPERTY:common,INTERFACE_INCLUDE_DIRECTORIES>
 )
 
-target_link_libraries(morningside-wagerwise PRIVATE common)
+include(FetchContent)
+FetchContent_Declare(json URL https://github.com/nlohmann/json/releases/download/v3.11.3/json.tar.xz)
+FetchContent_MakeAvailable(json)
+
+find_package(CURL REQUIRED)
+
+target_link_libraries(morningside-wagerwise 
+    PRIVATE nlohmann_json::nlohmann_json
+    PRIVATE common
+    PRIVATE CURL::libcurl
+)
 
 include(CTest)
 enable_testing()
