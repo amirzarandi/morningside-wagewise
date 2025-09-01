@@ -22,7 +22,7 @@ mkdir build
 cd build
 
 cmake ..
-make
+cmake --build .
 
 ./morningside-wagerwise
 ```
