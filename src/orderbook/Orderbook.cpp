@@ -26,53 +26,46 @@ Trades Orderbook::MatchOrders()
 {
     Trades trades;
     trades.reserve(orders_.size());
-
-    while (true)
+    
+    while (!bids_.empty() && !asks_.empty())
     {
-        if (bids_.empty() || asks_.empty())
-            break;
-        
         auto& [bidPrice, bids] = *bids_.begin();
         auto& [askPrice, asks] = *asks_.begin();
-
+        
         if (bidPrice < askPrice)
             break;
         
-        while (bids.size() && asks.size())
+        while (!bids.empty() && !asks.empty())
         {
             auto bid = bids.front();
             auto ask = asks.front();
-
             Quantity quantity = std::min(bid->GetRemainingQuantity(), ask->GetRemainingQuantity());
-
             bid->Fill(quantity);
             ask->Fill(quantity);
-
+            
             if (bid->IsFilled())
             {
                 bids.pop_front();
                 orders_.erase(bid->GetOrderId());
             }
-
             if (ask->IsFilled())
             {
                 asks.pop_front();
                 orders_.erase(ask->GetOrderId());
             }
-
-            if (bids.empty())
-                bids_.erase(bidPrice);
-
-            if (asks.empty())
-                asks_.erase(askPrice);
             
             trades.push_back(Trade{
                 TradeInfo{ bid->GetOrderId(), bid->GetPrice(), quantity },
                 TradeInfo{ ask->GetOrderId(), ask->GetPrice(), quantity }
-                });
+            });
         }
-    }
 
+        if (bids.empty())
+            bids_.erase(bidPrice);
+        if (asks.empty())
+            asks_.erase(askPrice);
+    }
+    
     if (!bids_.empty())
     {
         auto& [_, bids] = *bids_.begin();
@@ -88,7 +81,7 @@ Trades Orderbook::MatchOrders()
         if (order->GetOrderType() == OrderType::FillAndKill)
             CancelOrder(order->GetOrderId());
     }
-
+    
     return trades;
 }
 
@@ -154,9 +147,9 @@ Trades Orderbook::MatchOrder(OrderModify order)
     if (!orders_.contains(order.GetOrderId()))
         return { };
     
-        const auto& [existingOrder, _] = orders_.at(order.GetOrderId());
+    OrderType orderType = orders_.at(order.GetOrderId()).order_->GetOrderType();
     CancelOrder(order.GetOrderId());
-    return AddOrder(order.ToOrderPointer(existingOrder->GetOrderType()));
+    return AddOrder(order.ToOrderPointer(orderType));
 }
 
 std::size_t Orderbook::Size() const
