@@ -73,8 +73,8 @@ The benchmarks measure time complexity and throughput under different load condi
 
 | Operation | Time (1000 orders) | Per-Order Cost | Complexity |
 |-----------|-------------------|----------------|------------|
-| Add Order (no match) | 1,229 μs | 1.23 μs | O(n log n) |
-| Cancel Order | 374 μs | 0.37 μs | O(log n) |
+| Add Order (no match) | 1,229 μs | 1.23 μs | O(log n) |
+| Cancel Order | 374 μs | 0.37 μs | O(1) |
 | Get Order Infos | 62 ns | — | O(1) |
 | Size | 2 ns | — | O(1) |
 | Mixed Workload | 1,196 μs | 1.20 μs | — |
